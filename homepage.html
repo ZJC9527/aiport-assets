@@ -1,0 +1,714 @@
+<style>
+  .ap-root *, .ap-root *::before, .ap-root *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  .ap-root {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    background: #0a0f1e;
+    color: #e2e8f0;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    min-width: 320px;
+  }
+  .ap-root a { text-decoration: none; color: inherit; }
+
+  /* ── Keyframes ── */
+  @keyframes ap-fade-up {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes ap-ping {
+    75%, 100% { transform: scale(2.2); opacity: 0; }
+  }
+  @keyframes ap-cursor-blink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0; }
+  }
+  .ap-fade-0 { animation: ap-fade-up .65s cubic-bezier(.22,1,.36,1) both 0ms; }
+  .ap-fade-1 { animation: ap-fade-up .65s cubic-bezier(.22,1,.36,1) both 80ms; }
+  .ap-fade-2 { animation: ap-fade-up .65s cubic-bezier(.22,1,.36,1) both 160ms; }
+  .ap-fade-3 { animation: ap-fade-up .65s cubic-bezier(.22,1,.36,1) both 240ms; }
+  .ap-fade-4 { animation: ap-fade-up .65s cubic-bezier(.22,1,.36,1) both 340ms; }
+
+  /* ── Layout ── */
+  .ap-container { max-width: 1100px; margin: 0 auto; padding: 0 28px; }
+  .ap-section    { position: relative; overflow: hidden; }
+
+  /* ── Background Layers ── */
+  .ap-bg-grid {
+    position: absolute; inset: 0; z-index: 0; pointer-events: none;
+    background-image:
+      linear-gradient(rgba(99,102,241,.1) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(99,102,241,.1) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse 80% 70% at 50% 0%, black 20%, transparent 100%);
+    -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 0%, black 20%, transparent 100%);
+  }
+  .ap-bg-glow {
+    position: absolute; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(ellipse 55% 45% at 15% 10%, rgba(79,70,229,.28) 0%, transparent 65%),
+      radial-gradient(ellipse 45% 40% at 85% 5%,  rgba(124,58,237,.22) 0%, transparent 65%),
+      radial-gradient(ellipse 35% 30% at 50% 90%, rgba(99,102,241,.15) 0%, transparent 65%);
+  }
+
+  /* ── Badge ── */
+  .ap-badge {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 5px 14px; border-radius: 9999px;
+    border: 1px solid rgba(129,140,248,.3);
+    background: rgba(99,102,241,.1);
+    font-size: 11.5px; font-weight: 600; color: #a5b4fc;
+    letter-spacing: .03em; user-select: none;
+  }
+  .ap-badge-dot { position: relative; width: 7px; height: 7px; }
+  .ap-badge-dot-ring {
+    position: absolute; inset: 0; border-radius: 50%;
+    background: #818cf8; opacity: .7;
+    animation: ap-ping 1.5s cubic-bezier(0,0,.2,1) infinite;
+  }
+  .ap-badge-dot-core {
+    position: relative; display: block;
+    width: 7px; height: 7px; border-radius: 50%; background: #6366f1;
+  }
+
+  /* ── Hero Section ── */
+  .ap-hero-wrap { padding: 90px 0 72px; position: relative; z-index: 1; }
+  .ap-hero {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 56px; align-items: start;
+  }
+  @media (max-width: 800px) {
+    .ap-hero { grid-template-columns: 1fr; gap: 40px; }
+    .ap-hero-right { display: none; }
+    .ap-hero-wrap { padding: 64px 0 48px; }
+  }
+  .ap-hero-title {
+    font-size: clamp(2.1rem, 4.8vw, 3.2rem);
+    font-weight: 800; line-height: 1.12;
+    letter-spacing: -.025em; color: #f8fafc;
+    margin: 14px 0 18px;
+  }
+  .ap-gradient-text {
+    background: linear-gradient(130deg, #60a5fa 0%, #818cf8 40%, #c084fc 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .ap-hero-desc {
+    font-size: 15.5px; color: #94a3b8; max-width: 460px;
+    line-height: 1.75; margin-bottom: 36px;
+  }
+
+  /* ── Buttons ── */
+  .ap-btn-row { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 44px; }
+  .ap-btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    height: 46px; padding: 0 22px; border-radius: 11px;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: all .22s ease; user-select: none;
+    white-space: nowrap;
+  }
+  .ap-btn-primary {
+    background: linear-gradient(130deg, #4f46e5, #7c3aed);
+    color: #fff; border: 1px solid rgba(139,92,246,.4);
+    box-shadow: 0 0 28px rgba(99,102,241,.4), inset 0 1px 0 rgba(255,255,255,.1);
+  }
+  .ap-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 40px rgba(99,102,241,.6), inset 0 1px 0 rgba(255,255,255,.15);
+  }
+  .ap-btn-primary svg { width: 15px; height: 15px; transition: transform .2s; }
+  .ap-btn-primary:hover svg { transform: translateX(3px); }
+  .ap-btn-outline {
+    background: rgba(30,41,59,.8); color: #cbd5e1;
+    border: 1px solid rgba(99,102,241,.25);
+  }
+  .ap-btn-outline:hover {
+    border-color: rgba(129,140,248,.5);
+    background: rgba(51,65,85,.8); color: #e2e8f0;
+  }
+
+  /* ── App Pills ── */
+  .ap-apps-section { }
+  .ap-apps-label {
+    font-size: 10.5px; font-weight: 700;
+    letter-spacing: .12em; text-transform: uppercase;
+    color: #475569; margin-bottom: 12px;
+  }
+  .ap-apps { display: flex; flex-wrap: wrap; gap: 10px; }
+  .ap-pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 7px 16px; border-radius: 9999px;
+    border: 1px solid rgba(99,102,241,.2);
+    background: rgba(15,23,42,.7);
+    font-size: 13px; font-weight: 500; color: #94a3b8;
+    transition: all .22s ease; cursor: default;
+  }
+  .ap-pill:hover {
+    border-color: rgba(129,140,248,.45);
+    background: rgba(30,41,59,.9); color: #c7d2fe;
+    transform: scale(1.03);
+  }
+  .ap-pill-icon {
+    width: 22px; height: 22px; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; flex-shrink: 0;
+  }
+
+  /* ── Terminal ── */
+  .ap-terminal {
+    border-radius: 14px;
+    border: 1px solid rgba(99,102,241,.2);
+    background: #0d1424;
+    box-shadow: 0 32px 64px rgba(0,0,0,.5), 0 0 0 1px rgba(255,255,255,.03), 0 0 80px rgba(99,102,241,.08);
+    overflow: hidden;
+  }
+  .ap-terminal-bar {
+    display: flex; align-items: center; gap: 7px;
+    padding: 12px 18px;
+    background: #111827;
+    border-bottom: 1px solid rgba(99,102,241,.12);
+  }
+  .ap-dot { width: 11px; height: 11px; border-radius: 50%; }
+  .ap-dot-r { background: #ef4444; }
+  .ap-dot-y { background: #f59e0b; }
+  .ap-dot-g { background: #22c55e; }
+  .ap-terminal-label {
+    margin-left: 8px; font-size: 11.5px; color: #4b5563;
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  }
+  .ap-terminal-body {
+    padding: 22px 24px;
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    font-size: 12.5px; line-height: 1.7;
+  }
+  .t-comment { color: #4b5563; }
+  .t-prompt  { color: #6366f1; }
+  .t-key     { color: #f472b6; }
+  .t-str     { color: #86efac; }
+  .t-num     { color: #fb923c; }
+  .t-brace   { color: #60a5fa; }
+  .t-val     { color: #e2e8f0; }
+  .t-indent  { padding-left: 18px; display: block; }
+  .ap-cursor {
+    display: inline-block; width: 8px; height: 15px; border-radius: 2px;
+    background: #6366f1; margin-left: 3px; vertical-align: middle;
+    animation: ap-cursor-blink 1s ease infinite;
+  }
+
+  /* ── Stats Bar ── */
+  .ap-stats-wrap {
+    background: #0d1424;
+    border-top: 1px solid rgba(99,102,241,.15);
+    border-bottom: 1px solid rgba(99,102,241,.15);
+    position: relative; z-index: 1;
+  }
+  .ap-stats-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    padding: 36px 0; gap: 0;
+  }
+  @media (max-width: 600px) { .ap-stats-grid { grid-template-columns: repeat(2, 1fr); } }
+  .ap-stat-item {
+    text-align: center; padding: 0 16px;
+    border-right: 1px solid rgba(99,102,241,.12);
+  }
+  .ap-stat-item:last-child { border-right: none; }
+  .ap-stat-num {
+    font-size: 30px; font-weight: 900; letter-spacing: -.02em;
+    background: linear-gradient(130deg, #60a5fa, #818cf8);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .ap-stat-label { font-size: 12px; color: #64748b; margin-top: 5px; font-weight: 500; }
+
+  /* ── Section Common ── */
+  .ap-sec-pad { padding: 72px 0; position: relative; z-index: 1; }
+  .ap-sec-head { text-align: center; margin-bottom: 48px; }
+  .ap-sec-head h2 {
+    font-size: clamp(1.6rem, 3.2vw, 2.3rem);
+    font-weight: 800; color: #f1f5f9;
+    letter-spacing: -.025em; line-height: 1.2;
+  }
+  .ap-sec-head p { color: #64748b; font-size: 15px; margin-top: 12px; }
+
+  /* ── Divider ── */
+  .ap-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(99,102,241,.25) 30%, rgba(99,102,241,.25) 70%, transparent);
+    margin: 0;
+  }
+
+  /* ── Model Cards ── */
+  .ap-models-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 16px;
+  }
+  .ap-model-card {
+    border-radius: 14px;
+    border: 1px solid rgba(99,102,241,.18);
+    background: #111827;
+    padding: 22px 20px;
+    transition: all .25s ease;
+    position: relative; overflow: hidden;
+  }
+  .ap-model-card::before {
+    content: ''; position: absolute; inset: 0; border-radius: 14px;
+    background: radial-gradient(circle at 0% 0%, rgba(99,102,241,.08), transparent 60%);
+    pointer-events: none;
+  }
+  .ap-model-card:hover {
+    border-color: rgba(129,140,248,.45);
+    background: #161f30;
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(99,102,241,.2);
+  }
+  .ap-model-top { display: flex; align-items: center; gap: 11px; margin-bottom: 10px; }
+  .ap-model-icon {
+    width: 38px; height: 38px; border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; flex-shrink: 0;
+  }
+  .ap-model-name { font-size: 14.5px; font-weight: 700; color: #f1f5f9; }
+  .ap-model-desc { font-size: 12.5px; color: #64748b; line-height: 1.6; }
+  .ap-tag {
+    display: inline-block; margin-top: 12px;
+    padding: 3px 9px; border-radius: 5px;
+    font-size: 10.5px; font-weight: 700; letter-spacing: .02em;
+  }
+  .ap-tag-green  { background: rgba(34,197,94,.12);  color: #4ade80; border: 1px solid rgba(34,197,94,.2); }
+  .ap-tag-red    { background: rgba(239,68,68,.12);  color: #f87171; border: 1px solid rgba(239,68,68,.2); }
+  .ap-tag-purple { background: rgba(168,85,247,.12); color: #d8b4fe; border: 1px solid rgba(168,85,247,.2); }
+  .ap-tag-blue   { background: rgba(59,130,246,.12); color: #93c5fd; border: 1px solid rgba(59,130,246,.2); }
+
+  /* ── Feature Cards ── */
+  .ap-features-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+    gap: 18px;
+  }
+  .ap-feature-card {
+    border-radius: 14px;
+    border: 1px solid rgba(99,102,241,.12);
+    background: #0d1424;
+    padding: 26px 24px;
+    transition: all .25s ease;
+  }
+  .ap-feature-card:hover {
+    border-color: rgba(129,140,248,.35);
+    background: #111827;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(99,102,241,.12);
+  }
+  .ap-feature-ico {
+    width: 46px; height: 46px; border-radius: 11px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; margin-bottom: 16px;
+    background: rgba(99,102,241,.12);
+    border: 1px solid rgba(99,102,241,.18);
+  }
+  .ap-feature-title { font-size: 15px; font-weight: 700; color: #e2e8f0; margin-bottom: 8px; }
+  .ap-feature-desc  { font-size: 13px; color: #64748b; line-height: 1.65; }
+
+  /* ── Steps ── */
+  .ap-steps { display: flex; flex-direction: column; gap: 16px; max-width: 640px; margin: 0 auto; }
+  .ap-step {
+    display: flex; align-items: flex-start; gap: 18px;
+    padding: 22px 24px; border-radius: 14px;
+    border: 1px solid rgba(99,102,241,.15);
+    background: #0d1424;
+    transition: border-color .22s;
+  }
+  .ap-step:hover { border-color: rgba(129,140,248,.4); background: #111827; }
+  .ap-step-num {
+    width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 800; color: #fff;
+    box-shadow: 0 0 16px rgba(99,102,241,.45);
+  }
+  .ap-step-title { font-size: 14.5px; font-weight: 700; color: #e2e8f0; margin-bottom: 5px; }
+  .ap-step-desc  { font-size: 13px; color: #64748b; line-height: 1.6; }
+  .ap-code {
+    font-family: 'SF Mono', 'Fira Code', monospace; font-size: 12px;
+    padding: 2px 8px; border-radius: 5px;
+    background: rgba(99,102,241,.15); color: #a5b4fc;
+    border: 1px solid rgba(99,102,241,.25);
+  }
+
+  /* ── CTA ── */
+  .ap-cta-wrap { padding: 72px 0; position: relative; z-index: 1; }
+  .ap-cta-box {
+    border-radius: 20px;
+    border: 1px solid rgba(99,102,241,.25);
+    background: linear-gradient(140deg, #0f1729, #1a1040);
+    padding: 56px 32px;
+    text-align: center; position: relative; overflow: hidden;
+    box-shadow: 0 0 60px rgba(99,102,241,.12);
+  }
+  .ap-cta-glow {
+    position: absolute; top: -80px; left: 50%; transform: translateX(-50%);
+    width: 500px; height: 250px;
+    background: radial-gradient(ellipse, rgba(99,102,241,.22) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  .ap-cta-grid {
+    position: absolute; inset: 0; pointer-events: none;
+    background-image:
+      linear-gradient(rgba(99,102,241,.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(99,102,241,.07) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: radial-gradient(ellipse 60% 60% at 50% 50%, black, transparent);
+    -webkit-mask-image: radial-gradient(ellipse 60% 60% at 50% 50%, black, transparent);
+  }
+  .ap-cta-box h2 {
+    font-size: clamp(1.5rem, 3vw, 2.1rem); font-weight: 800;
+    color: #f8fafc; letter-spacing: -.025em; margin-bottom: 14px;
+    position: relative; z-index: 1;
+  }
+  .ap-cta-box p {
+    color: #64748b; font-size: 15px;
+    max-width: 480px; margin: 0 auto 32px; line-height: 1.7;
+    position: relative; z-index: 1;
+  }
+  .ap-cta-btns {
+    display: flex; gap: 12px; justify-content: center;
+    flex-wrap: wrap; position: relative; z-index: 1;
+  }
+
+  /* ── Section bg alternation ── */
+  .ap-bg-alt { background: #0d1424; }
+</style>
+
+<div class="ap-root">
+
+  <!-- ░░ HERO ░░ -->
+  <div class="ap-section">
+    <div class="ap-bg-grid"></div>
+    <div class="ap-bg-glow"></div>
+    <div class="ap-container">
+      <div class="ap-hero-wrap">
+        <div class="ap-hero">
+
+          <!-- Left -->
+          <div>
+            <div class="ap-badge ap-fade-0">
+              <span class="ap-badge-dot">
+                <span class="ap-badge-dot-ring"></span>
+                <span class="ap-badge-dot-core"></span>
+              </span>
+              AI 模型聚合接入平台
+            </div>
+
+            <h1 class="ap-hero-title ap-fade-1">
+              一个 Key，接入<br>
+              <span class="ap-gradient-text">全球主流 AI 模型</span>
+            </h1>
+
+            <p class="ap-hero-desc ap-fade-2">
+              国内直连、支付宝充值、OpenAI 兼容协议。<br>
+              告别海外信用卡，5 分钟接入，立即开始。
+            </p>
+
+            <div class="ap-btn-row ap-fade-3">
+              <a href="/register" class="ap-btn ap-btn-primary">
+                免费注册
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </a>
+              <a href="/login" class="ap-btn ap-btn-outline">已有账号，登录</a>
+            </div>
+
+            <div class="ap-apps-section ap-fade-4">
+              <div class="ap-apps-label">兼容客户端</div>
+              <div class="ap-apps">
+                <span class="ap-pill">
+                  <span class="ap-pill-icon" style="background:rgba(239,68,68,.15)">🍒</span>Cherry Studio
+                </span>
+                <span class="ap-pill">
+                  <span class="ap-pill-icon" style="background:rgba(99,102,241,.15)">⚡</span>Cursor
+                </span>
+                <span class="ap-pill">
+                  <span class="ap-pill-icon" style="background:rgba(34,197,94,.15)">🤖</span>Claude Code
+                </span>
+                <span class="ap-pill">
+                  <span class="ap-pill-icon" style="background:rgba(148,163,184,.1)">···</span>更多应用
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Terminal -->
+          <div class="ap-hero-right ap-fade-4">
+            <div class="ap-terminal">
+              <div class="ap-terminal-bar">
+                <span class="ap-dot ap-dot-r"></span>
+                <span class="ap-dot ap-dot-y"></span>
+                <span class="ap-dot ap-dot-g"></span>
+                <span class="ap-terminal-label">aiport — API Gateway</span>
+              </div>
+              <div class="ap-terminal-body">
+                <div class="t-comment"># 兼容 OpenAI SDK，改一行即可</div>
+                <br>
+                <span class="t-key">from</span> <span class="t-val"> openai </span><span class="t-key">import</span><span class="t-val"> OpenAI</span><br>
+                <span class="t-val">client</span> <span class="t-key">=</span> <span class="t-val">OpenAI(</span><br>
+                <span class="t-indent"><span class="t-key">api_key</span><span class="t-val">=</span><span class="t-str">"sk-your-aiport-token"</span><span class="t-val">,</span></span>
+                <span class="t-indent"><span class="t-key">base_url</span><span class="t-val">=</span><span class="t-str">"https://aiport.ai/v1"</span></span>
+                <span class="t-val">)</span>
+                <br>
+                <span class="t-val">resp</span> <span class="t-key">=</span> <span class="t-val">client.chat.completions.create(</span><br>
+                <span class="t-indent"><span class="t-key">model</span><span class="t-val">=</span><span class="t-str">"deepseek-chat"</span><span class="t-val">,</span></span>
+                <span class="t-indent"><span class="t-key">messages</span><span class="t-val">=[{</span><span class="t-str">"role"</span><span class="t-val">:</span><span class="t-str">"user"</span><span class="t-val">,</span><span class="t-str">"content"</span><span class="t-val">:</span><span class="t-str">"你好"</span><span class="t-val">}]</span></span>
+                <span class="t-val">)</span>
+                <br>
+                <div class="t-comment"># ✅ 响应成功</div>
+                <span class="t-brace">{</span><br>
+                <span class="t-indent">
+                  <span class="t-key">"model"</span><span class="t-val">: </span><span class="t-str">"deepseek-chat"</span><span class="t-val">,</span><br>
+                  <span class="t-key">"content"</span><span class="t-val">: </span><span class="t-str">"你好！有什么可以帮你的？"</span><span class="t-val">,</span><br>
+                  <span class="t-key">"total_tokens"</span><span class="t-val">: </span><span class="t-num">37</span>
+                </span>
+                <span class="t-brace">}</span> <span class="ap-cursor"></span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ░░ STATS ░░ -->
+  <div class="ap-stats-wrap">
+    <div class="ap-container">
+      <div class="ap-stats-grid">
+        <div class="ap-stat-item">
+          <div class="ap-stat-num" data-count="10" data-suffix="+">10+</div>
+          <div class="ap-stat-label">接入模型数</div>
+        </div>
+        <div class="ap-stat-item">
+          <div class="ap-stat-num" data-count="99.9" data-suffix="%" data-decimal="1">99.9%</div>
+          <div class="ap-stat-label">服务可用率</div>
+        </div>
+        <div class="ap-stat-item">
+          <div class="ap-stat-num" data-count="100" data-suffix="ms">100ms</div>
+          <div class="ap-stat-label">平均响应延迟</div>
+        </div>
+        <div class="ap-stat-item">
+          <div class="ap-stat-num" data-count="0" data-prefix="¥0.001">¥0.001</div>
+          <div class="ap-stat-label">最低 / 次</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ░░ MODELS ░░ -->
+  <div class="ap-section">
+    <div class="ap-bg-grid"></div>
+    <div class="ap-container">
+      <div class="ap-sec-pad">
+        <div class="ap-sec-head">
+          <h2>支持的 <span class="ap-gradient-text">AI 模型</span></h2>
+          <p>持续接入主流模型，覆盖对话、推理、代码、多模态全场景</p>
+        </div>
+        <div class="ap-models-grid">
+
+          <div class="ap-model-card">
+            <div class="ap-model-top">
+              <div class="ap-model-icon" style="background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.25)">🔷</div>
+              <div class="ap-model-name">DeepSeek-V3</div>
+            </div>
+            <div class="ap-model-desc">深度求索旗舰对话模型，日常对话和代码生成性价比最高</div>
+            <span class="ap-tag ap-tag-green">✓ 已上线</span>
+          </div>
+
+          <div class="ap-model-card">
+            <div class="ap-model-top">
+              <div class="ap-model-icon" style="background:rgba(168,85,247,.15);border:1px solid rgba(168,85,247,.25)">🧠</div>
+              <div class="ap-model-name">DeepSeek-R1</div>
+            </div>
+            <div class="ap-model-desc">深度推理模型，链式思考，媲美 OpenAI o1，复杂问题专用</div>
+            <span class="ap-tag ap-tag-green">✓ 已上线</span>
+          </div>
+
+          <div class="ap-model-card">
+            <div class="ap-model-top">
+              <div class="ap-model-icon" style="background:rgba(251,146,60,.15);border:1px solid rgba(251,146,60,.25)">✦</div>
+              <div class="ap-model-name">Claude Opus</div>
+            </div>
+            <div class="ap-model-desc">Anthropic 顶级模型，写作、代码、分析全能，Claude Code 首选</div>
+            <span class="ap-tag ap-tag-purple">即将上线</span>
+          </div>
+
+          <div class="ap-model-card">
+            <div class="ap-model-top">
+              <div class="ap-model-icon" style="background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.25)">⬡</div>
+              <div class="ap-model-name">GPT-4o</div>
+            </div>
+            <div class="ap-model-desc">OpenAI 多模态旗舰，视觉、代码、文本全能，生态最完整</div>
+            <span class="ap-tag ap-tag-purple">即将上线</span>
+          </div>
+
+          <div class="ap-model-card">
+            <div class="ap-model-top">
+              <div class="ap-model-icon" style="background:rgba(14,165,233,.15);border:1px solid rgba(14,165,233,.25)">◈</div>
+              <div class="ap-model-name">Gemini 2.5 Pro</div>
+            </div>
+            <div class="ap-model-desc">Google 最新旗舰，百万 token 超长上下文，性价比突出</div>
+            <span class="ap-tag ap-tag-purple">即将上线</span>
+          </div>
+
+          <div class="ap-model-card">
+            <div class="ap-model-top">
+              <div class="ap-model-icon" style="background:rgba(99,102,241,.12);border:1px solid rgba(99,102,241,.2)">＋</div>
+              <div class="ap-model-name">持续更新</div>
+            </div>
+            <div class="ap-model-desc">智谱 GLM、通义千问、豆包等国产模型持续接入，保持最新</div>
+            <span class="ap-tag ap-tag-blue">规划中</span>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ap-divider"></div>
+
+  <!-- ░░ FEATURES ░░ -->
+  <div class="ap-section ap-bg-alt">
+    <div class="ap-container">
+      <div class="ap-sec-pad">
+        <div class="ap-sec-head">
+          <h2>为什么选择 <span class="ap-gradient-text">Aiport</span></h2>
+          <p>不只是一个中转站，更是你的 AI 基础设施层</p>
+        </div>
+        <div class="ap-features-grid">
+
+          <div class="ap-feature-card">
+            <div class="ap-feature-ico">🔌</div>
+            <div class="ap-feature-title">OpenAI 兼容协议</div>
+            <div class="ap-feature-desc">完全兼容 OpenAI SDK，仅修改 base_url 即可接入，现有代码零改动</div>
+          </div>
+
+          <div class="ap-feature-card">
+            <div class="ap-feature-ico">💳</div>
+            <div class="ap-feature-title">国内支付 · 按量计费</div>
+            <div class="ap-feature-desc">支持支付宝 / 微信充值，¥10 起充，按实际 token 消耗计费，无月费</div>
+          </div>
+
+          <div class="ap-feature-card">
+            <div class="ap-feature-ico">⚡</div>
+            <div class="ap-feature-title">国内直连 · 低延迟</div>
+            <div class="ap-feature-desc">经 Cloudflare 全球加速，国内访问延迟低，无需 VPN，随时随地可用</div>
+          </div>
+
+          <div class="ap-feature-card">
+            <div class="ap-feature-ico">🔄</div>
+            <div class="ap-feature-title">多上游自动切换</div>
+            <div class="ap-feature-desc">多家上游渠道热备，某家故障自动切换到备用，服务连续性有保障</div>
+          </div>
+
+          <div class="ap-feature-card">
+            <div class="ap-feature-ico">📊</div>
+            <div class="ap-feature-title">用量透明可查</div>
+            <div class="ap-feature-desc">每次调用实时记录，token 用量、费用明细全透明，账单清晰无套路</div>
+          </div>
+
+          <div class="ap-feature-card">
+            <div class="ap-feature-ico">🛡️</div>
+            <div class="ap-feature-title">密钥安全隔离</div>
+            <div class="ap-feature-desc">你的 token 在你账号下独立隔离，上游密钥加密存储，来源不泄露</div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ap-divider"></div>
+
+  <!-- ░░ HOW IT WORKS ░░ -->
+  <div class="ap-section">
+    <div class="ap-bg-grid"></div>
+    <div class="ap-container">
+      <div class="ap-sec-pad">
+        <div class="ap-sec-head">
+          <h2>3 步开始使用</h2>
+          <p>从注册到接入，不超过 5 分钟</p>
+        </div>
+        <div class="ap-steps">
+          <div class="ap-step">
+            <div class="ap-step-num">1</div>
+            <div>
+              <div class="ap-step-title">注册账号 · 获取体验额度</div>
+              <div class="ap-step-desc">邮箱注册，立即获得免费体验额度，够你测试几百次真实调用</div>
+            </div>
+          </div>
+          <div class="ap-step">
+            <div class="ap-step-num">2</div>
+            <div>
+              <div class="ap-step-title">创建 API Key · 选择模型</div>
+              <div class="ap-step-desc">在「令牌」页面创建专属 key，按需设置模型权限和额度上限</div>
+            </div>
+          </div>
+          <div class="ap-step">
+            <div class="ap-step-num">3</div>
+            <div>
+              <div class="ap-step-title">填入客户端 · 立即调用</div>
+              <div class="ap-step-desc">
+                将客户端 Base URL 设为 <code class="ap-code">https://aiport.ai/v1</code>，
+                填入你的 key，任何支持 OpenAI 协议的工具即可使用
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ░░ CTA ░░ -->
+  <div class="ap-cta-wrap">
+    <div class="ap-container">
+      <div class="ap-cta-box">
+        <div class="ap-cta-glow"></div>
+        <div class="ap-cta-grid"></div>
+        <h2>准备好开始了吗？</h2>
+        <p>注册免费账号，5 分钟内接入全球主流 AI 模型，告别海外信用卡烦恼</p>
+        <div class="ap-cta-btns">
+          <a href="/register" class="ap-btn ap-btn-primary">
+            免费注册
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
+          <a href="/login" class="ap-btn ap-btn-outline">已有账号，直接登录</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  // 数字滚动动画
+  var els = document.querySelectorAll('.ap-stat-num[data-count]');
+  if (!els.length) return;
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (!entry.isIntersecting) return;
+      var el = entry.target;
+      var end     = parseFloat(el.getAttribute('data-count'));
+      var suffix  = el.getAttribute('data-suffix') || '';
+      var prefix  = el.getAttribute('data-prefix') || '';
+      var decimal = parseInt(el.getAttribute('data-decimal') || '0', 10);
+      if (prefix) { el.textContent = prefix; io.unobserve(el); return; }
+      var dur = 1500, t0 = performance.now();
+      function step(now) {
+        var p = Math.min((now - t0) / dur, 1);
+        var e = 1 - Math.pow(1 - p, 3);
+        var v = e * end;
+        el.textContent = (decimal ? v.toFixed(decimal) : Math.round(v)) + suffix;
+        if (p < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+      io.unobserve(el);
+    });
+  }, { threshold: 0.5 });
+  els.forEach(function (el) { io.observe(el); });
+})();
+</script>
