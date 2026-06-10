@@ -2,11 +2,15 @@
   .ap-root *, .ap-root *::before, .ap-root *::after { box-sizing: border-box; margin: 0; padding: 0; }
   .ap-root {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-    background: #0a0f1e;
+    background: #ffffff;
     color: #e2e8f0;
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
     min-width: 320px;
+  }
+  .ap-navbar-safe {
+    height: 72px;
+    background: #ffffff;
   }
   .ap-root a { text-decoration: none; color: inherit; }
 
@@ -31,6 +35,10 @@
   /* ── Layout ── */
   .ap-container { max-width: 1100px; margin: 0 auto; padding: 0 28px; }
   .ap-section    { position: relative; overflow: hidden; }
+
+  .ap-page {
+    background: #0a0f1e;
+  }
 
   /* ── Background Layers ── */
   .ap-bg-grid {
@@ -378,6 +386,8 @@
 </style>
 
 <div class="ap-root">
+  <div class="ap-navbar-safe"></div>
+  <div class="ap-page">
 
   <!-- ░░ HERO ░░ -->
   <div class="ap-section">
@@ -408,11 +418,11 @@
             </p>
 
             <div class="ap-btn-row ap-fade-3">
-              <a href="/register" class="ap-btn ap-btn-primary">
+              <a href="#" data-ap-nav="register" class="ap-btn ap-btn-primary">
                 免费注册
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
               </a>
-              <a href="/login" class="ap-btn ap-btn-outline">已有账号，登录</a>
+              <a href="#" data-ap-nav="login" class="ap-btn ap-btn-outline">已有账号，登录</a>
             </div>
 
             <div class="ap-apps-section ap-fade-4">
@@ -671,19 +681,40 @@
         <h2>准备好开始了吗？</h2>
         <p>注册免费账号，5 分钟内接入全球主流 AI 模型，告别海外信用卡烦恼</p>
         <div class="ap-cta-btns">
-          <a href="/register" class="ap-btn ap-btn-primary">
+          <a href="#" data-ap-nav="register" class="ap-btn ap-btn-primary">
             免费注册
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           </a>
-          <a href="/login" class="ap-btn ap-btn-outline">已有账号，直接登录</a>
+          <a href="#" data-ap-nav="login" class="ap-btn ap-btn-outline">已有账号，直接登录</a>
         </div>
       </div>
     </div>
   </div>
 
 </div>
+</div>
 
 <script>
+(function () {
+  function go(path) {
+    var target = window.location.origin + path;
+    try {
+      if (window.parent && window.parent !== window) {
+        window.parent.location.href = target;
+        return;
+      }
+    } catch (e) {}
+    window.location.href = target;
+  }
+
+  document.querySelectorAll('[data-ap-nav]').forEach(function (link) {
+    link.addEventListener('click', function (event) {
+      event.preventDefault();
+      go('/' + link.getAttribute('data-ap-nav'));
+    });
+  });
+})();
+
 (function () {
   // 数字滚动动画
   var els = document.querySelectorAll('.ap-stat-num[data-count]');
