@@ -696,8 +696,18 @@
 
 <script>
 (function () {
+  function getAppOrigin() {
+    try {
+      if (document.referrer) {
+        var referrerOrigin = new URL(document.referrer).origin;
+        if (referrerOrigin !== window.location.origin) return referrerOrigin;
+      }
+    } catch (e) {}
+    return window.location.origin;
+  }
+
   function go(path) {
-    var target = window.location.origin + path;
+    var target = getAppOrigin() + path;
     try {
       if (window.parent && window.parent !== window) {
         window.parent.location.href = target;
